@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import GoogleSignIn
 
 struct CryptoCoreScreen: View {
-    @EnvironmentObject  var vm: CryptoCoreViewModel
+    @EnvironmentObject private var vm: CryptoCoreViewModel
+    @StateObject private var vmProfile = ProfileViewModel()
     @State private var showPortfolio: Bool = false
     @State private var showPortfolioView: Bool = false
     @State private var selectedCoin: CoinModel? = nil
@@ -18,47 +20,39 @@ struct CryptoCoreScreen: View {
     var body: some View {
         ZStack {
             Color.theme.background
-                .ignoresSafeArea()
-                .sheet(isPresented: $showPortfolioView) {
-                    PortfolioView()
-                        .environmentObject(vm)
-                }
+            
             VStack {
                 homeHeader
-                Spacer(minLength: 20)
-                HomeStatistView(showPortfolio: $showPortfolio)
                 
-                Spacer(minLength: 20)
-                SearchBarView(searchText: $vm.searchText)
-                    .padding(.horizontal, 20)
-                Spacer(minLength: 20)
-                colomnsNames
-                    .padding(.horizontal, 20)
-                if !showPortfolio {
+                Spacer(minLength: 12)
+                
+                HomeStatistView()
+                
+                Spacer(minLength: 12)
+                
+                VStack {
+                    Spacer(minLength: 16)
+                    SearchBarView(searchText: $vm.searchText)
+                        .padding(.horizontal, 16)
+                    Spacer(minLength: 20)
+                    colomnsNames
                     allCryptoCoin
-                        .transition(.move(edge: .leading))
-                } else {
-                    portfolioCryptoCoin
-                        .transition(.move(edge: .trailing))
+                        .background(
+                            NavigationLink(isActive: $showDetail, destination: {
+                                DetailLoadView(coin: $selectedCoin)
+                                    .navigationBarBackButtonHidden(true)
+                                    .navigationBarHidden(true)
+                            }, label: {
+                                EmptyView()
+                            })
+                        )
                 }
+                .background(Color.theme.colorOverBackground)
+                .cornerRadius(32)
                 Spacer(minLength: 0)
             }
-            
-            .sheet(isPresented: $showSettingsView) {
-                SettingsView()
-            }
-            
         }
-        
-        .background(
-            NavigationLink(isActive: $showDetail, destination: {
-                DetailLoadView(coin: $selectedCoin)
-            }, label: {
-                EmptyView()
-            })
-        )
-        
-        
+        .ignoresSafeArea()
     }
 }
 struct CryptoCodeScreen_Previews: PreviewProvider {
@@ -66,53 +60,69 @@ struct CryptoCodeScreen_Previews: PreviewProvider {
         NavigationView {
             CryptoCoreScreen()
                 .navigationBarHidden(true)
-                .preferredColorScheme(.dark)
         }
         .environmentObject(dev.cryptoViewModel)
     }
 }
 
 extension CryptoCoreScreen {
+    
     private var homeHeader: some View {
         HStack {
-            CircleButtonView(iconName: showPortfolio ? "plus" : "info")
-                .animation(.none)
-                .onTapGesture {
-                    if showPortfolio {
-                        showPortfolioView.toggle()
-                    } else {
-                        showSettingsView.toggle()
-                    }
-                }
-                .background (
-                    CircleButtonAnimationView(animate: $showPortfolio)
-                )
+            NavigationLink(isActive: $showSettingsView, destination:{
+                ProfileView()
+                    .navigationBarBackButtonHidden(true)
+                    .navigationBarHidden(true)
+                    .environmentObject(AuthViewModel())
+            }, label: {
+                Image(uiImage: (vmProfile.image != nil ? vmProfile.image! : UIImage(named: "avatar")!))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 46, height: 46)
+                    .clipShape(Circle())
+                    .padding(.all, 2)
+                    .overlay(Circle().stroke(Color.gragient.linearGradient, lineWidth: 2))
+                    .padding(.leading)
+                    .padding(.trailing, 6)
+            })
+         
+            VStack(alignment: .leading) {
+                Text("\(vmProfile.user?.profile?.name != nil ? "Hello," : "Hello!") \(vmProfile.user?.profile?.name.components(separatedBy: [" "]).first ?? "")")
+                    .padding(.bottom, 0.9)
+                    .font(Font.myFont.poppins20)
+                    .foregroundColor(Color.theme.accent)
+                Text("\(Date().asShortDateString())")
+                    .font(Font.myFont.poppins12)
+                    .foregroundColor(Color.theme.secondaryTint)
+            }
+            .frame(alignment: .bottom)
+            
             Spacer()
-            Text(showPortfolio ? "Portfolio" : "Live Prices")
-                .font(.headline)
-                .fontWeight(.heavy)
-                .foregroundColor(Color.theme.accent)
-                .animation(.none)
-            Spacer()
-            CircleButtonView(iconName:"chevron.right")
-                .rotationEffect(Angle(degrees: showPortfolio ? 180 : 0))
-                .onTapGesture {
-                    withAnimation(.spring()) {
-                        showPortfolio.toggle()
+        
+            NavigationLink(isActive: $showPortfolio, destination:{
+                CryptoPortfolioScreen()
+                    .navigationBarBackButtonHidden(true)
+                    .navigationBarHidden(true)
+            }, label: {
+                CircleButtonView(iconName:"Suitcase", opacityBackground: 1)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            showPortfolio.toggle()
+                        }
                     }
-                        
-                }
+                    .frame(alignment: .trailing)
+                    .padding()
+            })
         }
-        .padding(.horizontal)
+        .frame(width: UIScreen.main.bounds.width ,height: 104, alignment: .bottom)
+        .background(Color.theme.colorOverBackground)
+        .cornerRadius(32)
     }
     
     private var colomnsNames: some View {
         HStack {
             HStack(spacing: 4) {
-                Text("Coin")
-                Image(systemName: "chevron.down")
-                    .opacity(vm.sortOption == .rank || vm.sortOption == .rankReversed ? 1.0 : 0.0)
-                    .rotationEffect(Angle(degrees: vm.sortOption == .rank ? 0 : 180))
+              Text("Coin (\(vm.allCryptoCoins.count))")
             }
             .onTapGesture {
                 withAnimation(.default) {
@@ -120,24 +130,10 @@ extension CryptoCoreScreen {
                 }
             }
             Spacer()
-            if showPortfolio {
-                HStack(spacing: 4) {
-                    Text("Holdings")
-                    Image(systemName: "chevron.down")
-                        .opacity(vm.sortOption == .holdings || vm.sortOption == .holdingsReversed ? 1.0 : 0.0)
-                        .rotationEffect(Angle(degrees: vm.sortOption == .holdings ? 0 : 180))
-                }
-                .onTapGesture {
-                    withAnimation(.default) {
-                        vm.sortOption = vm.sortOption == .holdings ? .holdingsReversed : .holdings
-                    }
-                }
-            }
             HStack(spacing: 4) {
                 Text("Price")
-                Image(systemName: "chevron.down")
-                    .opacity(vm.sortOption == .price || vm.sortOption == .priceReversed ? 1.0 : 0.0)
-                    .rotationEffect(Angle(degrees: vm.sortOption == .price ? 0 : 180))
+                Image("ArrowUp")
+                    .rotationEffect(Angle(degrees: vm.sortOption == .price ? 180 : 0))
             }
             .onTapGesture {
                 withAnimation(.default) {
@@ -145,44 +141,27 @@ extension CryptoCoreScreen {
                 }
             }
             .frame(width: UIScreen.main.bounds.width / 3.5, alignment: .trailing)
-            Button {
-                withAnimation(.linear(duration: 2.0)) {
-                    vm.reloadData()
-                }
-            } label: {
-                Image(systemName: "goforward")
-            }
-            .rotationEffect(Angle(degrees: vm.isLoading ? 360 : 0), anchor: .center)
             
             
-        }.font(.caption)
+        }.font(Font.myFont.poppins15)
             .foregroundColor(.theme.secondaryTint)
             .padding(.horizontal)
     }
     
     private var allCryptoCoin: some View {
-        List {
+        ScrollView {
             ForEach(vm.allCryptoCoins) { coin in
+                Divider()
+                    .background(Color.theme.accent)
+                    .opacity(0.1)
                 CryptoRowView(coin: coin, showHoldingColomn: false)
                     .onTapGesture {
                         segue(coin: coin)
                     }
             }
-        }.listStyle(PlainListStyle())
-            .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 10))
+        }
     }
-    private var portfolioCryptoCoin: some View {
-        List {
-            ForEach(vm.cryptoCurrencyPortfolio) { coin in
-                CryptoRowView(coin: coin, showHoldingColomn: true)
-                    .onTapGesture {
-                        segue(coin: coin)
-                    }
-            }
-        }.listStyle(PlainListStyle())
-            .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 10))
-    }
-    
+
     private func segue(coin: CoinModel) {
         selectedCoin = coin
         showDetail.toggle()

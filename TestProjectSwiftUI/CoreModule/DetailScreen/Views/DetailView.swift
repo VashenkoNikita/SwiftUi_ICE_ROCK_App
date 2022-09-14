@@ -10,16 +10,16 @@ import SwiftUI
 struct DetailLoadView: View {
     @Binding var coin: CoinModel?
     
-    
     var body: some View {
         ZStack {
+            Color.theme.background
+                .ignoresSafeArea()
             if let coin = coin {
                 DetailView(coin: coin)
             }
         }
     }
 }
-
 struct DetailView: View {
     @StateObject private var vm: DetailViewModel
     @State private var isReadMore: Bool = false
@@ -33,137 +33,151 @@ struct DetailView: View {
         _vm = StateObject(wrappedValue: DetailViewModel(coin: coin))
     }
     var body: some View {
-        ScrollView {
-            VStack {
-                ChartView(coin: vm.coin)
-                    .padding(.vertical)
-                VStack(spacing: 20) {
-                    descriptionTitle
-                    Divider()
-                        .background(Color.theme.accent)
-                    descriptionCoin
-                    
-                    overviewTitle
-                    Divider()
-                        .background(Color.theme.accent)
-                    overviewGrid
-                    
-                    additionalTitle
-                    Divider()
-                        .background(Color.theme.accent)
-                    additionalGrid
-                    webSiteLink
+        VStack {
+            ScrollView {
+                CustomNavBar(isPresentedEditButton: false) {
+                    titleName
                 }
-                .padding()
+                Spacer(minLength: 12)
+                VStack {
+                    infoChartView
+                        .padding()
+                    ChartView(coin: vm.coin, showChartDetail: true, frameChart: 100)
+                        .padding(.vertical, 20)
+                    VStack(spacing: 30) {
+                        overviewTitle
+                        overviewGrid
+                        descriptionTitle
+                        descriptionCoin
+                        additionalTitle
+                        additionalGrid
+                    }
+                    .padding()
+                }
+                .background(Color.theme.colorOverBackground)
+                .cornerRadius(32)
             }
         }
-        .navigationTitle(vm.coin.name)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                toolBarTrailingItems
-            }
-        }
+        .ignoresSafeArea()
     }
 }
 
 struct DetailView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            DetailView(coin: dev.coin)
-                .preferredColorScheme(.dark)
-        }
+        DetailView(coin: dev.coin)
+            .preferredColorScheme(.dark)
     }
 }
 
 
 extension DetailView {
+    private var infoChartView: some View {
+        VStack {
+            Text("\(Date().asShortDateString())")
+                .font(Font.myFont.poppins12)
+                .foregroundColor(Color.theme.secondaryTint)
+            if let overViewStat = vm.overviewStat {
+                Spacer()
+                Text(overViewStat.first?.value ?? "")
+                    .font(Font.myFont.poppins28)
+                    .foregroundColor(Color.theme.accent)
+                Spacer()
+                HStack(alignment: .bottom, spacing: 0) {
+                    Text(weeklyPriceDifference() >= 0 ? "+" : "")
+                        .font(Font.myFont.poppins16)
+                    Text(weeklyPriceDifference().asPercentString())
+                        .font(Font.myFont.poppins16)
+                }
+                .foregroundColor(weeklyPriceDifference() >= 0 ? Color.theme.green : Color.theme.red)
+            }
+        }
+    }
+    
     private var descriptionTitle: some View {
-        Text("Description")
-            .font(.title)
-            .bold()
-            .foregroundColor(Color.theme.accent)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        Group {
+            if let _ = vm.coinDescription {
+                Text("Description")
+                    .font(Font.myFont.poppins18)
+                    .foregroundColor(Color.theme.accent)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
     }
     
     private var descriptionCoin: some View {
         ZStack {
             if let coinDescription = vm.coinDescription, !coinDescription.isEmpty {
-                VStack(alignment: .leading) {
+                VStack(alignment: .center) {
                     Text(coinDescription)
                         .lineLimit(isReadMore ? .none : 4)
-                        .font(.callout)
+                        .font(Font.myFont.poppins14)
                     Button {
                         withAnimation(.easeInOut) {
                             isReadMore.toggle()
                         }
                     } label: {
-                        Text(isReadMore ? "Hide text" : "Read more...")
-                            .font(.caption)
-                            .bold()
-                            .foregroundColor(Color.blue)
+                        Text(isReadMore ? "Hide text" : "Check more")
+                            .font(Font.myFont.poppins14)
+                            .foregroundColor(Color.theme.backgroundAuth)
                             .padding(.vertical, 1)
                     }
                 }
                 .foregroundColor(Color.theme.secondaryTint)
-                
             }
         }
     }
     
     private var overviewTitle: some View {
         Text("Overview")
-            .font(.title)
-            .bold()
+            .font(Font.myFont.poppins18)
             .foregroundColor(Color.theme.accent)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     private var additionalTitle: some View {
         Text("Additional Details")
-            .font(.title)
-            .bold()
+            .font(Font.myFont.poppins18)
             .foregroundColor(Color.theme.accent)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     private var overviewGrid: some View {
         LazyVGrid(columns: colomns,
-                  alignment: .leading,
-                  spacing: 30,
+                  alignment: .center,
+                  spacing: 8,
                   pinnedViews: []) {
             ForEach(vm.overviewStat) { stat in
-                StatisticView(statModel: stat)
+                StatisticView(statModel: stat, widthStatView: UIScreen.main.bounds.width / 2 - 20)
             }
         }
     }
     private var additionalGrid: some View {
         LazyVGrid(columns: colomns,
-                  alignment: .leading,
-                  spacing: 30,
+                  alignment: .center,
+                  spacing: 8,
                   pinnedViews: []) {
             ForEach(vm.additionalStat) { stat in
-                StatisticView(statModel: stat)
+                StatisticView(statModel: stat, widthStatView: UIScreen.main.bounds.width / 2 - 20)
             }
         }
     }
-    private var toolBarTrailingItems: some View {
+    private var titleName: some View {
         HStack {
-            Text(vm.coin.symbol.uppercased())
-                .font(.headline)
-                .foregroundColor(Color.theme.secondaryTint)
             CryptoImageView(coin: vm.coin)
                 .frame(width: 25, height: 25)
-        }
-
-    }
-    
-    private var webSiteLink: some View {
-        ZStack {
-            if let websiteURLString = vm.websiteURL, let url = URL(string: websiteURLString) {
-                Link("Website", destination: url)
-                    .font(.headline)
-                    .accentColor(Color.blue)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            Text(vm.coin.name)
+                .font(Font.myFont.poppins20)
+                .foregroundColor(Color.theme.accent)
         }
     }
     
+    private func weeklyPriceDifference() -> Double {
+        let firstPrice = vm.coin.sparklineIn7D?.price?.first ?? 0
+        let lastPrice = vm.coin.sparklineIn7D?.price?.last ?? 0
+        let currentPrice = (lastPrice + firstPrice)/2
+        
+        let difference = lastPrice - firstPrice
+        
+        let result = (difference/currentPrice) * 100
+        
+        return result
+    }
 }

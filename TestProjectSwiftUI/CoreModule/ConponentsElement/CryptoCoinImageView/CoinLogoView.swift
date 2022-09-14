@@ -13,26 +13,26 @@ struct CoinLogoView: View {
         VStack {
             CryptoImageView(coin: coin)
                 .frame(width: 40, height: 40)
-            Text(coin.symbol.uppercased())
-                .font(.headline)
-                .foregroundColor(Color.theme.accent)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
             Text(coin.name)
-                .font(.caption)
-                .foregroundColor(Color.theme.secondaryTint)
-                .lineLimit(2)
+                .font(Font.myFont.poppins16)
+                .foregroundColor(Color.theme.accent)
                 .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
+                .padding(.all, 1)
+                .lineLimit(2)
+            Text(coin.currentPrice.asCurrecyWith2Decimal())
+                .font(Font.myFont.poppins12)
+                .foregroundColor(Color.theme.secondaryTint)
         }
+        .frame(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.height / 6)
+        .background(Color.theme.backgroundElements)
+        .cornerRadius(16)
     }
 }
 
 struct CoinLogoView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            CoinLogoView(coin: dev.coin)
-                .previewLayout(.sizeThatFits)
             CoinLogoView(coin: dev.coin)
                 .previewLayout(.sizeThatFits)
                 .preferredColorScheme(.dark)

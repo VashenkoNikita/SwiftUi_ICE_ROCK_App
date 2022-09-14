@@ -6,11 +6,23 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseAuth
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    return true
+  }
+}
 
 @main
 struct TestProjectSwiftUIApp: App {
-    @StateObject private var vm = CryptoCoreViewModel()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     @State var showLaunchView: Bool = true
+    @StateObject var viewRouter = ViewRouter()
     
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.theme.accent)]
@@ -20,12 +32,9 @@ struct TestProjectSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                NavigationView {
-                    CryptoCoreScreen()
-                        .navigationViewStyle(StackNavigationViewStyle())
-                        .navigationBarHidden(true)
-                }
-                .environmentObject(vm)
+                MainScreen()
+                    .environmentObject(viewRouter)
+                    
                 ZStack {
                     if showLaunchView {
                         LaunchView(showLaunchScreen: $showLaunchView)

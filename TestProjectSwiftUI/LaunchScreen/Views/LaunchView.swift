@@ -17,14 +17,16 @@ struct LaunchView: View {
     
     var body: some View {
         ZStack {
-            Color.theme.darkBackground
+            Color.theme.background
             .ignoresSafeArea()
           VStack {
             Image("LogoIce")
+                  .resizable()
+                  .frame(width: 245, height: 46)
             ZStack {
               if isShowLoadingText {
                 HStack(spacing: 0) {
-                  ForEach(loadingText.indices) { index in
+                    ForEach(loadingText.indices, id: \.self) { index in
                     Text(loadingText[index])
                       .foregroundColor(Color.theme.backgroundAuth)
                       .font(.headline)
@@ -37,9 +39,7 @@ struct LaunchView: View {
             }
             .offset(y: 32)
           }
-          .frame(width: 240, height: 64)
-            
-            
+          
         }
         .onAppear {
             isShowLoadingText.toggle()

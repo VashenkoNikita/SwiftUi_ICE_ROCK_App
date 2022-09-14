@@ -18,15 +18,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIce" translatesAutoresizingMaskIntoConstraints="NO" id="nOt-4f-Agj">
-                                <rect key="frame" x="87" y="395" width="240" height="47"/>
+                                <rect key="frame" x="87" y="359.5" width="240" height="187"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="187" id="Bz9-dl-vj6"/>
+                                    <constraint firstAttribute="width" constant="240" id="jv3-fG-3cj"/>
+                                </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
-                            <constraint firstItem="nOt-4f-Agj" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" constant="87" id="8Mz-C0-Mc5"/>
-                            <constraint firstItem="nOt-4f-Agj" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="351" id="A5b-ze-JEO"/>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="trailing" secondItem="nOt-4f-Agj" secondAttribute="trailing" constant="87" id="EcC-A8-mZ1"/>
+                            <constraint firstItem="nOt-4f-Agj" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="Pgf-EY-JwV"/>
+                            <constraint firstItem="nOt-4f-Agj" firstAttribute="centerY" secondItem="Bcu-3y-fUS" secondAttribute="centerY" id="QeP-Xs-IbD"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -36,7 +39,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LogoIce" width="251" height="47"/>
+        <image name="LogoIce" width="983" height="187"/>
         <namedColor name="LaunchBackground">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

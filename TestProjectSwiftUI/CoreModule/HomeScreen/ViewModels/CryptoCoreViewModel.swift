@@ -15,7 +15,7 @@ class CryptoCoreViewModel: ObservableObject {
     @Published var cryptoCurrencyPortfolio: [CoinModel] = []
     @Published var isLoading: Bool = false
     @Published var searchText: String = ""
-    @Published var sortOption: SortOption = .rank
+    @Published var sortOption: SortOption = .priceReversed
     
     private var cancellable = Set<AnyCancellable>()
     private let coinDataService = CryptoDataService()
@@ -57,7 +57,6 @@ class CryptoCoreViewModel: ObservableObject {
                 self?.isLoading = false
             }
             .store(in: &cancellable)
-        
     }
     
     func updatePortfolio(coin: CoinModel, amount: Double) {

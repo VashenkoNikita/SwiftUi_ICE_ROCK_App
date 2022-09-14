@@ -36,7 +36,6 @@ class PortfolioDataService {
         } else {
             add(coin: coin, amount: amount)
         }
-        
     }
  
     private func getPortfolioData() {

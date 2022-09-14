@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Color {
     static let theme = ThemeColor()
+    static let gragient = GradientColor()
 }
 
 struct ThemeColor {
@@ -19,6 +20,10 @@ struct ThemeColor {
     let green = Color("GreenColor")
     let red = Color("RedColor")
     let secondaryTint = Color("SecondaryTintColor")
-    let darkBackground = Color("LaunchBackground")
-    let accentLaunch = Color("LaunchAccentColor")
+    let colorOverBackground = Color("ColorOverBackground")
+    let backgroundElements = Color("BackgroundElements")
+}
+
+struct GradientColor {
+    let linearGradient = LinearGradient(colors: [Color("ColorOne"), Color("ColorTwo"), Color("ColorThree"), Color("ColorFour"), Color("ColorFive"), Color("ColorSix"), ], startPoint: .leading, endPoint: .trailing)
 }
