@@ -22,17 +22,35 @@ struct MainScreen: View {
             VStack{
                 
                 if status {
-                    
-                    NavigationView {
-                        CryptoCoreScreen()
-                            .navigationViewStyle(StackNavigationViewStyle())
-                            .navigationBarHidden(true)
+                    if vmAuth.googleUser != nil {
+                        NavigationView {
+                            CryptoCoreScreen()
+                                .navigationViewStyle(StackNavigationViewStyle())
+                                .navigationBarHidden(true)
+                                .onAppear {
+                                    vmAuth.googleSignIn(viewRouter: viewRouter)
+                                }
+                        }
+                        .environmentObject(vm)
+                        .transition(.move(edge: .trailing))
+                    } else if vmAuth.emailUser != nil {
+                        NavigationView {
+                            CryptoCoreScreen()
+                                .navigationViewStyle(StackNavigationViewStyle())
+                                .navigationBarHidden(true)
+                        }
+                        .environmentObject(vm)
+                        .transition(.move(edge: .trailing))
+                    } else {
+                        AuthScreen()
+                            .environmentObject(vmAuth)
+                            .transition(.move(edge: .trailing))
                     }
-                    .environmentObject(vm)
                 }
                 else{
                     AuthScreen()
                         .environmentObject(vmAuth)
+                        .transition(.move(edge: .trailing))
                 }
                 
             }.animation(.spring())
@@ -45,23 +63,23 @@ struct MainScreen: View {
                     }
                 }
             
-            
         case .homePage:
             
-            withAnimation(.easeInOut) {
                 NavigationView {
                     CryptoCoreScreen()
                         .navigationViewStyle(StackNavigationViewStyle())
                         .navigationBarHidden(true)
                 }
                 .environmentObject(vm)
-            }
+                .transition(.move(edge: .trailing))
+            
         }
     }
 }
 
 struct MotherView_Previews: PreviewProvider {
     static var previews: some View {
-        MainScreen().environmentObject(ViewRouter())
+        MainScreen()
+            .environmentObject(ViewRouter())
     }
 }

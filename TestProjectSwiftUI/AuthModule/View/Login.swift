@@ -13,38 +13,38 @@ struct Login: View {
     @State private var isSecurePass = false
     @State private var errorMessage = ""
     @State private var alert = false
-    @EnvironmentObject  var vm: AuthViewModel
-    @EnvironmentObject var viewRouter: ViewRouter
+    @StateObject private var vm = AuthViewModel()
+    @StateObject private var viewRouter = ViewRouter()
         
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack {
                 topTitle
-                    .padding(.top, 30)
+                    .padding(.top, 35)
                 
                 EntryFieldEmail(prompt: vm.emailPrompt, field: $vm.email)
                     .padding(.horizontal)
-                    .padding(.top, 40)
+                    .padding(.top, 35)
                 EntryFieldPassword(placeHolder: "Passsword", prompt: vm.passwordPrompt, field: $vm.password, isSecure: $isSecurePass)
                     .padding(.horizontal)
-                    .padding(.top, 30)
+                    .padding(.top, 35)
                 forgotPasswordButton
                     .padding(.horizontal)
-                    .padding(.top, 20)
+                    .padding(.top, 35)
             }
             .padding()
-            .padding(.bottom, 65)
+            .padding(.bottom, 45)
             .background(Color.theme.colorOverBackground)
             .clipShape(CShape())
             .contentShape(CShape())
             .onTapGesture {
                 index = 0
             }
-            .cornerRadius(35)
+            .cornerRadius(45)
             .padding(.horizontal, 30)
                         
             loginButton
-                .offset(y: 30)
+                .offset(y: 25)
                 .opacity(index == 0 ? 1 : 0)
             
         }

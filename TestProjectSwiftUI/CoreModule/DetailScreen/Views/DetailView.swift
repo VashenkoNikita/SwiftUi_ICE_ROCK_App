@@ -35,8 +35,10 @@ struct DetailView: View {
     var body: some View {
         VStack {
             ScrollView {
-                CustomNavBar(isPresentedEditButton: false) {
+                CustomNavBar(rightButtonName: "Edit_Pencil", isPresentedEditButton: false) {
                     titleName
+                } action: {
+                    
                 }
                 Spacer(minLength: 12)
                 VStack {

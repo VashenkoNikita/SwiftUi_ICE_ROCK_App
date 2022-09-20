@@ -16,15 +16,18 @@ struct PortfolioView: View {
     @State private var quantity: String = ""
     @State private var isCoinContainsPortfolio: Bool = false
     @State private var bottomSheetPosition: BottomSheetPosition = .absolute(UIScreen.main.bounds.height / 1.85)
+    private let frameScreen = UIScreen.main.bounds
     
     var body: some View {
         ZStack {
             Color.theme.background
             VStack {
-                CustomNavBar(isPresentedEditButton: false) {
+                CustomNavBar(rightButtonName: "camera", isPresentedEditButton: false) {
                     Text("Edit")
                         .foregroundColor(Color.theme.accent)
                         .font(Font.myFont.poppins20)
+                } action: {
+                    
                 }
                 
                 Spacer(minLength: 12)
@@ -43,7 +46,7 @@ struct PortfolioView: View {
             
             if selectedCoin != nil {
                 Color.clear
-                    .bottomSheet( bottomSheetPosition: $bottomSheetPosition, switchablePositions: [.dynamicBottom, .absolute(UIScreen.main.bounds.height / 1.85)]) {
+                    .bottomSheet( bottomSheetPosition: $bottomSheetPosition, switchablePositions: [.dynamicBottom, .absolute(frameScreen.height / 1.85)]) {
                         portfolioInputView
                     }
             }
@@ -117,111 +120,112 @@ extension PortfolioView {
     }
     
     private var portfolioInputView: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: isCoinContainsPortfolio ? 20 : 25){
-                HStack {
-                    if let coin = selectedCoin {
-                        CryptoImageView(coin: coin)
-                            .frame(width: 25, height: 25)
-                        Text(coin.name)
-                            .font(Font.myFont.poppins20)
-                            .foregroundColor(Color.theme.accent)
+        ScrollView {
+            VStack(spacing: 20) {
+                VStack(spacing: isCoinContainsPortfolio ? 20 : 25){
+                    HStack {
+                        if let coin = selectedCoin {
+                            CryptoImageView(coin: coin)
+                                .frame(width: 25, height: 25)
+                            Text(coin.name)
+                                .font(Font.myFont.poppins20)
+                                .foregroundColor(Color.theme.accent)
+                        }
+                        if isCoinContainsPortfolio {
+                            Spacer()
+                            Button {
+                                cellCoin()
+                            } label: {
+                                Text("Cell")
+                                    .font(Font.myFont.poppins20)
+                                    .foregroundColor(Color.theme.accent)
+                            }
+                        } else {
+                            Spacer()
+                            Button {
+                                selectedCoin = nil
+                                UIApplication.shared.endEditing()
+                            } label: {
+                                Text("Cancel")
+                                    .font(Font.myFont.poppins20)
+                                    .foregroundColor(Color.theme.accent)
+                            }
+                        }
                     }
+                    .frame(width: frameScreen.width - 32, alignment: .leading)
+                    
+                    VStack(alignment: .leading) {
+                        Text("Amount holding")
+                            .font(Font.myFont.poppins15)
+                            .foregroundColor(Color.theme.accent.opacity(0.7))
+                            .padding(.horizontal, 4)
+                        TextField("21.0", text: $quantity)
+                            .padding(.horizontal, 12)
+                            .foregroundColor(Color.theme.tintColor)
+                            .keyboardType(.webSearch)
+                            .frame(width: frameScreen.width - 32, height: frameScreen.height / 16)
+                            .background(Color.theme.colorOverBackground)
+                            .cornerRadius(10)
+                    }
+                    
                     if isCoinContainsPortfolio {
-                        Spacer()
-                        Button {
-                            cellCoin()
-                        } label: {
-                            Text("Cell")
-                                .font(Font.myFont.poppins20)
-                                .foregroundColor(Color.theme.accent)
-                        }
-                    } else {
-                        Spacer()
-                        Button {
-                            selectedCoin = nil
-                            UIApplication.shared.endEditing()
-                        } label: {
-                            Text("Cancel")
-                                .font(Font.myFont.poppins20)
+                        Divider()
+                            .background(Color.theme.accent.opacity(0.1))
+                            .padding(.leading, 16)
+                        HStack {
+                            Text("In portfolio")
+                                .font(Font.myFont.poppins15)
+                                .foregroundColor(Color.theme.accent.opacity(0.7))
+                            Spacer()
+                            Text(portfolioCoin?.currentHoldingsValue.asCurrecyWith2Decimal() ?? "")
+                                .font(Font.myFont.poppins15)
                                 .foregroundColor(Color.theme.accent)
                         }
                     }
-                }
-                .frame(width: UIScreen.main.bounds.width - 32,alignment: .leading)
-                
-                VStack(alignment: .leading) {
-                    Text("Amount holding")
-                        .font(Font.myFont.poppins15)
-                        .foregroundColor(Color.theme.accent.opacity(0.7))
-                        .padding(.horizontal, 4)
-                    TextField("21.0", text: $quantity)
-                        .padding(.horizontal, 12)
-                        .foregroundColor(Color.theme.tintColor)
-                        .keyboardType(.webSearch)
-                        .frame(width: UIScreen.main.bounds.width - 32, height: 48)
-                        .background(Color.theme.colorOverBackground)
-                        .cornerRadius(10)
-                }
-                
-                if isCoinContainsPortfolio {
                     Divider()
                         .background(Color.theme.accent.opacity(0.1))
                         .padding(.leading, 16)
                     HStack {
-                        Text("In portfolio")
+                        Text("Current price")
                             .font(Font.myFont.poppins15)
                             .foregroundColor(Color.theme.accent.opacity(0.7))
                         Spacer()
-                        Text(portfolioCoin?.currentHoldingsValue.asCurrecyWith2Decimal() ?? "")
+                        Text(selectedCoin?.currentPrice.asCurrecyWith2Decimal() ?? "")
+                            .font(Font.myFont.poppins15)
+                            .foregroundColor(Color.theme.accent)
+                    }
+                    Divider()
+                        .background(Color.theme.accent.opacity(0.1))
+                        .padding(.leading, 16)
+                    HStack {
+                        Text("Current value")
+                            .font(Font.myFont.poppins15)
+                            .foregroundColor(Color.theme.accent.opacity(0.7))
+                        Spacer()
+                        Text(getCurrentValues().asCurrecyWith2Decimal())
                             .font(Font.myFont.poppins15)
                             .foregroundColor(Color.theme.accent)
                     }
                 }
-                Divider()
-                    .background(Color.theme.accent.opacity(0.1))
-                    .padding(.leading, 16)
-                HStack {
-                    Text("Current price")
-                        .font(Font.myFont.poppins15)
-                        .foregroundColor(Color.theme.accent.opacity(0.7))
-                    Spacer()
-                    Text(selectedCoin?.currentPrice.asCurrecyWith2Decimal() ?? "")
-                        .font(Font.myFont.poppins15)
-                        .foregroundColor(Color.theme.accent)
-                }
-                Divider()
-                    .background(Color.theme.accent.opacity(0.1))
-                    .padding(.leading, 16)
-                HStack {
-                    Text("Current value")
-                        .font(Font.myFont.poppins15)
-                        .foregroundColor(Color.theme.accent.opacity(0.7))
-                    Spacer()
-                    Text(getCurrentValues().asCurrecyWith2Decimal())
-                        .font(Font.myFont.poppins15)
-                        .foregroundColor(Color.theme.accent)
-                }
+                .padding(.horizontal, 16)
+                
+                Button(action: {
+                    saveButtonPressed()
+                }, label: {
+                    Text(isCoinContainsPortfolio ? "Save" : "Add")
+                        .foregroundColor(Color.theme.backgroundAuth)
+                        .font(Font.myFont.poppins18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .frame(width: frameScreen.width - 32, height: 56)
+                                .foregroundColor(Color.theme.accent.opacity(0.1))
+                        )
+                        .frame(width: frameScreen.width - 32, height: 56)
+                })
                 .padding(.bottom, 32)
             }
-            .padding(.horizontal, 16)
-            
-            Button(action: {
-                saveButtonPressed()
-            }, label: {
-                Text(isCoinContainsPortfolio ? "Save" : "Add")
-                    .foregroundColor(Color.theme.backgroundAuth)
-                    .font(Font.myFont.poppins18)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .frame(width: UIScreen.main.bounds.width - 32, height: 56)
-                            .foregroundColor(Color.theme.accent.opacity(0.1))
-                    )
-                    .frame(width: UIScreen.main.bounds.width - 32, height: 56)
-            })
-            .padding(.bottom, 32)
+            .cornerRadius(radius: 32, corners: [.topLeft, .topRight])
         }
-        .cornerRadius(radius: 32, corners: [.topLeft, .topRight])
     }
     
     private func updatePortfolioValue(coin: CoinModel) {

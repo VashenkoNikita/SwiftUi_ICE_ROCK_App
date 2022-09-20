@@ -22,6 +22,7 @@ struct ThemeColor {
     let secondaryTint = Color("SecondaryTintColor")
     let colorOverBackground = Color("ColorOverBackground")
     let backgroundElements = Color("BackgroundElements")
+    let tfColor = Color("TextFieldColor")
 }
 
 struct GradientColor {

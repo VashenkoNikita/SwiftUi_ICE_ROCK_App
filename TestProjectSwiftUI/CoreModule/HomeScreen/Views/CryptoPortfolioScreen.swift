@@ -21,34 +21,40 @@ struct CryptoPortfolioScreen: View {
                 
                 homeHeader
                 
-                Spacer(minLength: 12)
-                //TODO Нужен ли тут скролл
-                
-                PortfolioChartView(values: returnCurrentHoldingPrice())
-                Spacer(minLength: 12)
-                VStack {
+                ScrollView {
+                    Spacer(minLength: 4)
+                    PortfolioChartView(values: returnCurrentHoldingPrice())
+                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2)
                     Spacer(minLength: 12)
-                    searchBarAndPlusButton
-                    Spacer(minLength: 20)
-                    colomnsNames
-                    portfolioCryptoCoin
-                        .background(
-                            NavigationLink(isActive: $showDetail, destination: {
-                                DetailLoadView(coin: $selectedCoin)
-                                    .navigationBarBackButtonHidden(true)
-                                    .navigationBarHidden(true)
-                            }, label: {
-                                EmptyView()
-                            })
-                        )
+                    
+                    VStack {
+                        Spacer(minLength: 12)
+                        searchBarAndPlusButton
+                        Spacer(minLength: 20)
+                        colomnsNames
+                        portfolioCryptoCoin
+                            .background(
+                                NavigationLink(isActive: $showDetail, destination: {
+                                    DetailLoadView(coin: $selectedCoin)
+                                        .navigationBarBackButtonHidden(true)
+                                        .navigationBarHidden(true)
+                                }, label: {
+                                    EmptyView()
+                                })
+                            )
+                    }
+                    .background(Color.theme.colorOverBackground)
+                    .cornerRadius(32)
                 }
-                .background(Color.theme.colorOverBackground)
-                .cornerRadius(32)
                 
                 Spacer(minLength: 0)
             }
         }
         .ignoresSafeArea()
+        .fullScreenCover(isPresented: $showPortfolioView) {
+            PortfolioView()
+                .environmentObject(vm)
+        }
     }
 }
 struct CryptoPortfolioScreen_Previews: PreviewProvider {
@@ -65,10 +71,12 @@ struct CryptoPortfolioScreen_Previews: PreviewProvider {
 extension CryptoPortfolioScreen {
     
     private var homeHeader: some View {
-        CustomNavBar(isPresentedEditButton: true) {
+        CustomNavBar(rightButtonName: "Edit_Pencil", isPresentedEditButton: true) {
             Text("Portfolio")
                 .foregroundColor(Color.theme.accent)
                 .font(Font.myFont.poppins20)
+        } action: {
+            showPortfolioView.toggle()
         }
     }
     
@@ -120,10 +128,6 @@ extension CryptoPortfolioScreen {
             CircleButtonView(iconName:"Add_Plus", opacityBackground: 1)
                 .onTapGesture {
                     showPortfolioView.toggle()
-                }
-                .fullScreenCover(isPresented: $showPortfolioView) {
-                    PortfolioView()
-                        .environmentObject(vm)
                 }
         }
         .padding(.horizontal, 16)

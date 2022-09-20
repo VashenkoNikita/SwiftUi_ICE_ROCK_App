@@ -16,18 +16,18 @@ struct AuthScreen: View {
     @State var index = 0
     
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             Spacer()
             Image("LogoIce")
                 .resizable()
                 .frame(width: 150, height: 30)
+                .padding(.top, 5)
             ZStack {
                 SignUp(index: $index)
                     .zIndex(Double(index))
                 Login(index: $index)
             }
-            .padding(.top, 30)
-            
+            Spacer(minLength: 12)
             HStack(spacing: 15) {
                 Rectangle()
                     .fill(Color.theme.backgroundAuth)
@@ -40,8 +40,6 @@ struct AuthScreen: View {
                     .frame(height: 1)
             }
             .padding(.horizontal, 30)
-            .padding(.top, 50)
-            
             HStack(spacing: 25) {
                 Button {
                     
@@ -62,7 +60,6 @@ struct AuthScreen: View {
                         .clipShape(Circle())
                 }
             }
-            .padding(.top, 40)
             Spacer()
         }
         .padding(.vertical)

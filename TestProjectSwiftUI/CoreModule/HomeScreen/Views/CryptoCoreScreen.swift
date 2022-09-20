@@ -7,6 +7,8 @@
 
 import SwiftUI
 import GoogleSignIn
+import FirebaseStorage
+import SDWebImageSwiftUI
 
 struct CryptoCoreScreen: View {
     @EnvironmentObject private var vm: CryptoCoreViewModel
@@ -53,6 +55,9 @@ struct CryptoCoreScreen: View {
             }
         }
         .ignoresSafeArea()
+        .onAppear {
+            vmProfile.fetchCurrentUser()
+        }
     }
 }
 struct CryptoCodeScreen_Previews: PreviewProvider {
@@ -75,21 +80,26 @@ extension CryptoCoreScreen {
                     .navigationBarHidden(true)
                     .environmentObject(AuthViewModel())
             }, label: {
-                Image(uiImage: (vmProfile.image != nil ? vmProfile.image! : UIImage(named: "avatar")!))
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 46, height: 46)
-                    .clipShape(Circle())
-                    .padding(.all, 2)
-                    .overlay(Circle().stroke(Color.gragient.linearGradient, lineWidth: 2))
-                    .padding(.leading)
-                    .padding(.trailing, 6)
+                if let url = vmProfile.currentUserData?.profileImageUrl {
+                    WebImage(url: URL(string: url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                        .padding(.all, 3)
+                        .overlay(Circle().stroke(Color.gragient.linearGradient, lineWidth: vmProfile.currentUserData?.profileImageUrl != nil ? 1 : 0) )
+                        .opacity(vmProfile.currentUserData?.profileImageUrl != nil ? 1 : 0.4)
+                } else {
+                    CircleButtonView(iconName: "camera", opacityBackground: 1)
+                }
             })
+            .padding(.leading)
+            .padding(.trailing, 1)
          
             VStack(alignment: .leading) {
-                Text("\(vmProfile.user?.profile?.name != nil ? "Hello," : "Hello!") \(vmProfile.user?.profile?.name.components(separatedBy: [" "]).first ?? "")")
+                Text(vmProfile.currentUserData?.username != nil &&  vmProfile.currentUserData?.username != "" ? vmProfile.currentUserData!.username : "username")
                     .padding(.bottom, 0.9)
-                    .font(Font.myFont.poppins20)
+                    .font(Font.myFont.poppins18)
                     .foregroundColor(Color.theme.accent)
                 Text("\(Date().asShortDateString())")
                     .font(Font.myFont.poppins12)
@@ -114,9 +124,9 @@ extension CryptoCoreScreen {
                     .padding()
             })
         }
-        .frame(width: UIScreen.main.bounds.width ,height: 104, alignment: .bottom)
+        .frame(width: UIScreen.main.bounds.width ,height: UIScreen.main.bounds.height / 7, alignment: .bottom)
         .background(Color.theme.colorOverBackground)
-        .cornerRadius(32)
+        .cornerRadius(radius: 32, corners: [.bottomLeft, .bottomRight])
     }
     
     private var colomnsNames: some View {

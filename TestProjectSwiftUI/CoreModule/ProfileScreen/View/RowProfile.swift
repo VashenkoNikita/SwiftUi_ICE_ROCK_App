@@ -26,7 +26,7 @@ struct RowProfile: View {
                 .padding(.horizontal, 16)
                 .rotationEffect(Angle(degrees: 180))
         }
-        .frame(height: 36)
+        .frame(height: UIScreen.main.bounds.height / 22)
     }
 }
 
@@ -37,3 +37,5 @@ struct RowProfile_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
     }
 }
+
+

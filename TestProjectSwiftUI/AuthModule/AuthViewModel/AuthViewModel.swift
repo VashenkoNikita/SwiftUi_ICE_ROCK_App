@@ -15,14 +15,9 @@ class AuthViewModel: ObservableObject {
     @Published var confirmPw = ""
     @Published var isSignInProcessing = false
     @Published var isSignUpProcessing = false
-    
-    //MARK: - Google auth
-    @Published var googleSignInState: StateGoogleSignIn = .signedOut
-    
-    enum StateGoogleSignIn {
-        case signedIn
-        case signedOut
-    }
+        
+    let googleUser = GIDSignIn.sharedInstance.currentUser
+    let emailUser = Auth.auth().currentUser
     
     func googleSignIn(viewRouter: ViewRouter) {
         if GIDSignIn.sharedInstance.hasPreviousSignIn() {
@@ -49,11 +44,14 @@ class AuthViewModel: ObservableObject {
             try Auth.auth().signOut()
             
             viewRouter.currentPage = .signInPage
+            
+            UserDefaults.standard.set(false, forKey: "status")
+            NotificationCenter.default.post(name: NSNotification.Name("statusChange"), object: nil)
+            
         } catch let error {
             print(error.localizedDescription)
         }
     }
-    
     
     private func authenticateUser(for user: GIDGoogleUser?, with error: Error?, viewRouter: ViewRouter) {
         if let error = error {
@@ -72,6 +70,9 @@ class AuthViewModel: ObservableObject {
                 print(error.localizedDescription)
             } else {
                 viewRouter.currentPage = .homePage
+                
+                UserDefaults.standard.set(true, forKey: "status")
+                NotificationCenter.default.post(name: NSNotification.Name("statusChange"), object: nil)
             }
         }
     }
@@ -100,7 +101,6 @@ class AuthViewModel: ObservableObject {
                     viewRouter.currentPage = .homePage
                 }
             }
-            
         }
     }
     
@@ -130,13 +130,22 @@ class AuthViewModel: ObservableObject {
     func signOut(viewRouter: ViewRouter) {
         do {
             try Auth.auth().signOut()
+            viewRouter.currentPage = .signInPage
+            UserDefaults.standard.set(false, forKey: "status")
+            NotificationCenter.default.post(name: NSNotification.Name("statusChange"), object: nil)
+            
         } catch let error {
             print("Error sign out: \(error.localizedDescription)")
         }
-        
-        withAnimation {
-            viewRouter.currentPage = .signInPage
-        }
+    }
+    
+    func deleteCurrentUser() {
+        emailUser?.delete(completion: { error in
+            if let error = error {
+                print("User delete failed: \(error)")
+            }
+            print("delete success")
+        })
     }
     
     // MARK: - Validation Functions
@@ -146,14 +155,12 @@ class AuthViewModel: ObservableObject {
     }
     
     func isPasswordValid() -> Bool {
-        // criteria in regex.  See http://regexlib.com
         let passwordTest = NSPredicate(format: "SELF MATCHES %@",
                                        "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$")
         return passwordTest.evaluate(with: password)
     }
     
     func isEmailValid() -> Bool {
-        // criteria in regex.  See http://regexlib.com
         let emailTest = NSPredicate(format: "SELF MATCHES %@",
                                     "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$")
         return emailTest.evaluate(with: email)

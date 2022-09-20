@@ -64,6 +64,13 @@ class PortfolioDataService {
         applyChanges()
     }
     
+    func removeAll() {
+        for entity in savedEntities {
+            container.viewContext.delete(entity)
+            applyChanges()
+        }
+    }
+    
     private func save() {
         do {
             try container.viewContext.save()

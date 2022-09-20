@@ -12,10 +12,14 @@ struct CustomNavBar<Content: View>: View {
     
     @Environment(\.presentationMode) var presentationMode
     var isPresentedEditButton: Bool = true
+    var rightButtonName: String?
+    var action: () -> Void
     
-    init( isPresentedEditButton: Bool, @ViewBuilder content: () -> Content) {
+    init(rightButtonName: String?, isPresentedEditButton: Bool, @ViewBuilder content: () -> Content, action: @escaping () -> Void) {
         self.isPresentedEditButton = isPresentedEditButton
         self.content = content()
+        self.rightButtonName = rightButtonName
+        self.action = action
     }
     
     var body: some View {
@@ -30,16 +34,16 @@ struct CustomNavBar<Content: View>: View {
             Spacer()
             content
             Spacer()
-            Button(action: {
-            }, label: {
-                Image("Edit_Pencil")
+            Button(action: action) {
+                Image(rightButtonName ?? "")
                     .font(Font.myFont.poppins20)
                     .padding(.all, 24)
                     .opacity(isPresentedEditButton ? 1 : 0)
-            })
+                    .disabled(isPresentedEditButton)
+            }
         }
         
-        .frame(height: 104, alignment: .bottom)
+        .frame(height: UIScreen.main.bounds.height / 7, alignment: .bottom)
         .background(Color.theme.colorOverBackground)
         .cornerRadius(radius: 32, corners: [.bottomLeft, .bottomRight])
     }
@@ -47,10 +51,12 @@ struct CustomNavBar<Content: View>: View {
 
 struct CustomNavBar_Previews: PreviewProvider {
     static var previews: some View {
-        CustomNavBar( isPresentedEditButton: true) {
+        CustomNavBar(rightButtonName: "Edit_Pencil", isPresentedEditButton: true) {
             Text("Profile")
                 .foregroundColor(Color.theme.accent)
                 .font(Font.myFont.poppins20)
+        } action:  {
+            
         }
     }
 }

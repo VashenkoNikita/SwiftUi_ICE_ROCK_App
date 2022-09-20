@@ -20,7 +20,7 @@ struct PortfolioChartView: View {
     
     @State private var activeIndex: Int = -1
     
-    init(values:[Double], colors: [Color] = [Color.theme.red, Color.theme.green, Color.theme.backgroundAuth, Color.orange, Color.yellow, Color.blue, Color.theme.tintColor], widthFraction: CGFloat = 0.75, innerRadiusFraction: CGFloat = 0.90){
+    init(values:[Double], colors: [Color] = [Color.theme.red, Color.theme.green, Color.theme.backgroundAuth, Color.orange, Color.yellow, Color.blue, Color.theme.tintColor], widthFraction: CGFloat = 0.75, innerRadiusFraction: CGFloat = 0.9){
         self.values = values
         
         self.colors = colors
@@ -70,17 +70,19 @@ struct PortfolioChartView: View {
                         Circle()
                             .fill(Color.theme.colorOverBackground)
                             .frame(width: widthFraction * geometry.size.width * innerRadiusFraction , height: widthFraction * geometry.size.width * innerRadiusFraction )
-                        
                         totalPriceInfo
                         
                     }
+                    Spacer()
                     scrollChartView
+                        .padding(.top, 12)
                 }
             }
-            .padding()
-            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2.5)
+            
+            .padding(.all, 16)
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2)
             .background(Color.theme.colorOverBackground)
-            .cornerRadius(radius: 32, corners: [.topLeft, .topRight])
+            .cornerRadius(32)
         }
     }
 }
@@ -121,6 +123,7 @@ extension PortfolioChartView {
                         Text(returnPercentValueToTotal(coin: elememt))
                             .font(Font.myFont.poppins12)
                     }
+                    .frame(height: UIScreen.main.bounds.height / 20)
                     .padding(.vertical, 1)
                     .padding(.horizontal, 8)
                     .foregroundColor(
@@ -131,7 +134,7 @@ extension PortfolioChartView {
                 }
             }
         }
-        .frame(height: 40)
+        .frame(height: UIScreen.main.bounds.height / 20)
     }
     
     private var slices: [PortfolioSliceData] {

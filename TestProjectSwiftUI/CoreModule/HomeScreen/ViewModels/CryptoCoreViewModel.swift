@@ -63,6 +63,10 @@ class CryptoCoreViewModel: ObservableObject {
         portfolioDataService.updatePortfolio(coin: coin, amount: amount)
     }
     
+    func deletePortfolio() {
+        portfolioDataService.removeAll()
+    }
+    
     private func mapAllCoinsToPortfolioCoins(coinModels: [CoinModel], portfolioEntities: [PortfolioEntity]) -> [CoinModel] {
         coinModels.compactMap { (coin) -> CoinModel? in
             guard let entity = portfolioEntities.first(where: {$0.coinID == coin.id}) else { return nil }

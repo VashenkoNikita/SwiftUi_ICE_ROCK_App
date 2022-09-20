@@ -11,36 +11,34 @@ import Firebase
 
 struct SignUp: View {
     @Binding var index: Int
-    
     @State private var isSecurePass = false
     @State private var isSecureConfirmPass = false
     @State private var errorMessage = ""
     @State private var alert = false
-    @EnvironmentObject  var vm: AuthViewModel
-    @EnvironmentObject var viewRouter: ViewRouter
+    @StateObject private var vm = AuthViewModel()
+    @StateObject private var viewRouter = ViewRouter()
     
     var body: some View {
         ZStack(alignment: .bottom) {
             
             VStack {
                 topTitle
-                    .padding(.top, 30)
-                
+                    .padding(.top, 35)
                 
                 EntryFieldEmail(prompt: vm.emailPrompt, field: $vm.email)
                     .padding(.horizontal)
-                    .padding(.top, 40)
+                    .padding(.top, 35)
                 
                 EntryFieldPassword(placeHolder: "Password", prompt: vm.passwordPrompt, field: $vm.password, isSecure: $isSecurePass)
                     .padding(.horizontal)
-                    .padding(.top, 30)
+                    .padding(.top, 35)
                 
                 EntryFieldPassword(placeHolder: "Confirm password", prompt: vm.confirmPwPrompt, field: $vm.confirmPw, isSecure: $isSecureConfirmPass)
                     .padding(.horizontal)
-                    .padding(.top, 30)
+                    .padding(.top, 35)
             }
             .padding()
-            .padding(.bottom, 65)
+            .padding(.bottom, 45)
             .background(Color.theme.colorOverBackground)
             .clipShape(CShape1())
             .contentShape(CShape1())
@@ -48,11 +46,11 @@ struct SignUp: View {
             .onTapGesture {
                 index = 1
             }
-            .cornerRadius(35)
+            .cornerRadius(50)
             .padding(.horizontal, 30)
             
             signUpButton
-                .offset(y: 30)
+                .offset(y: 25)
                 .opacity(index == 1 ? 1 : 0)
             
         }
@@ -103,7 +101,6 @@ extension SignUp {
                     
                     self.errorMessage = status
                     self.alert.toggle()
-                    
                 }
                 else{
                     
