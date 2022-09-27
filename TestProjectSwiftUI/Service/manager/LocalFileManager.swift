@@ -12,15 +12,13 @@ class LocalFileManager {
     private init() { }
     
     func saveImage(image: UIImage, nameImage: String, nameFolder: String) {
-        //Create folder
         createFolderIfNeeded(folderName: nameFolder)
         
-        //get path to image
         guard let data = image.pngData(),
               let url = getURLForImage(imageName: nameImage, folderName: nameFolder) else {
             return
         }
-        //save image
+        
         do {
             try data.write(to: url)
         } catch let error {

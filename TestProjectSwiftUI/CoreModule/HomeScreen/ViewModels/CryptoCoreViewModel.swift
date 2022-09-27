@@ -104,14 +104,7 @@ class CryptoCoreViewModel: ObservableObject {
             coins.sort(by: {$0.currentPrice > $1.currentPrice})
         }
     }
-    
-    func reloadData() {
-        isLoading = true
-        coinDataService.getCoin()
-        marketDataService.getData()
-        HapticManager.notification(type: .success)
-    }
-    
+
     private func getSortedPortfolioCoins(coins: [CoinModel]) -> [CoinModel] {
         switch sortOption {
         case .holdings:
